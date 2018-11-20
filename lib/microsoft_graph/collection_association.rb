@@ -10,6 +10,7 @@ class MicrosoftGraph
       @parent          = options[:parent]
       @order_by        = options[:order_by]
       @filter          = options[:filter]
+      @query           = options[:query]
       @dirty           = false
       @loaded          = false
       @internal_values = []
@@ -68,6 +69,8 @@ class MicrosoftGraph
       elsif @filter
         escaped_filters = URI.escape(stringify_filters(@filter))
         "#{path}?$filter=#{escaped_filters}"
+      elsif @query
+        "#{path}?#{@query}"
       else
         path
       end
@@ -181,6 +184,18 @@ class MicrosoftGraph
       @next_link = query_path
       @internal_values = []
       fetch_next_page
+    end
+
+    def top(limit = 1)
+      self.class.new(
+          type: @type,
+          graph: @graph,
+          resource_name: @resource_name,
+          parent: @parent,
+          order_by: @order_by,
+          filter: @filter,
+          query: "$top=#{limit}"
+      )
     end
 
     private
